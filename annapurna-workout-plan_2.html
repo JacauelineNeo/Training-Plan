@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annapurna Base Camp - 5 Month Workout Plan</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        const months = [
+          {
+            number: 1, title: "Foundation", subtitle: "Build the base",
+            color: "#4ade80", icon: "🌱",
+            goal: "Establish consistency, strengthen joints & lungs. Your body is new to this — go slow and don't skip rest days.",
+            weeks: [
+              { week: "Weeks 1–2", days: [
+                { day: "Mon", activity: "Walk 30 min (brisk pace)", type: "cardio" },
+                { day: "Tue", activity: "Bodyweight squats 3×12, lunges 3×10, planks 3×20s", type: "strength" },
+                { day: "Wed", activity: "Rest or gentle stretching 20 min", type: "rest" },
+                { day: "Thu", activity: "Run/walk intervals: 1 min run / 2 min walk × 8", type: "cardio" },
+                { day: "Fri", activity: "Glute bridges 3×15, calf raises 3×20, core 15 min", type: "strength" },
+                { day: "Sat", activity: "Long walk 60 min on varied terrain", type: "cardio" },
+                { day: "Sun", activity: "Rest — foam roll or yoga", type: "rest" },
+              ]},
+              { week: "Weeks 3–4", days: [
+                { day: "Mon", activity: "Walk 40 min, last 10 min uphill or stairs", type: "cardio" },
+                { day: "Tue", activity: "Squats 3×15, step-ups 3×12/leg, planks 3×30s", type: "strength" },
+                { day: "Wed", activity: "Rest or yoga 20 min", type: "rest" },
+                { day: "Thu", activity: "Run/walk: 2 min run / 1 min walk × 8", type: "cardio" },
+                { day: "Fri", activity: "Single-leg deadlifts 3×10, hip thrusts 3×15, core 20 min", type: "strength" },
+                { day: "Sat", activity: "Long walk 75 min — add a backpack (5kg)", type: "cardio" },
+                { day: "Sun", activity: "Rest", type: "rest" },
+              ]},
+            ],
+            tip: "Buy your hiking boots NOW and wear them on all walks to break them in.",
+          },
+          {
+            number: 2, title: "Endurance", subtitle: "Go longer, go stronger",
+            color: "#60a5fa", icon: "🏃",
+            goal: "Increase cardiovascular endurance and leg strength. Start practicing stair climbing and longer sustained effort.",
+            weeks: [
+              { week: "Weeks 1–2", days: [
+                { day: "Mon", activity: "Easy run 20 min continuous (slow is fine!)", type: "cardio" },
+                { day: "Tue", activity: "Weighted squats 4×12, Romanian deadlifts 3×10, planks 3×40s", type: "strength" },
+                { day: "Wed", activity: "Stair climbing 20 min or hill walk", type: "cardio" },
+                { day: "Thu", activity: "Run 25 min easy", type: "cardio" },
+                { day: "Fri", activity: "Lunges 4×12, step-ups with pack, core circuit 20 min", type: "strength" },
+                { day: "Sat", activity: "Hike 2h with 7kg backpack on varied terrain", type: "cardio" },
+                { day: "Sun", activity: "Rest + stretching", type: "rest" },
+              ]},
+              { week: "Weeks 3–4", days: [
+                { day: "Mon", activity: "Run 30 min easy", type: "cardio" },
+                { day: "Tue", activity: "Goblet squats 4×12, split squats 3×10/leg, dead bug core", type: "strength" },
+                { day: "Wed", activity: "Stair climbing 30 min with pack", type: "cardio" },
+                { day: "Thu", activity: "Run 30 min — add 5 min tempo pace mid-run", type: "cardio" },
+                { day: "Fri", activity: "Strength circuit: legs + core + mobility 45 min", type: "strength" },
+                { day: "Sat", activity: "Hike 2.5h with 8kg pack — seek elevation gain", type: "cardio" },
+                { day: "Sun", activity: "Rest", type: "rest" },
+              ]},
+            ],
+            tip: "Train with trekking poles on weekends — practice on hills to build the technique.",
+          },
+          {
+            number: 3, title: "Altitude Prep", subtitle: "Simulate the mountain",
+            color: "#f59e0b", icon: "⛰️",
+            goal: "Simulate steep ascents and descents. Build knee and ankle resilience. Increase pack weight progressively.",
+            weeks: [
+              { week: "Weeks 1–2", days: [
+                { day: "Mon", activity: "Run 35 min with 2×5 min tempo intervals", type: "cardio" },
+                { day: "Tue", activity: "Box step-ups heavy 4×12, Bulgarian split squats 3×10, core 20 min", type: "strength" },
+                { day: "Wed", activity: "Stair intervals: 10 min up/down × 3 sets", type: "cardio" },
+                { day: "Thu", activity: "Run 30 min hilly route (simulate trail)", type: "cardio" },
+                { day: "Fri", activity: "Lateral lunges, calf raises, ankle stability, glutes", type: "strength" },
+                { day: "Sat", activity: "Hike 3–4h with 9kg pack — focus on descents", type: "cardio" },
+                { day: "Sun", activity: "Active recovery: swim or bike 30 min", type: "rest" },
+              ]},
+              { week: "Weeks 3–4", days: [
+                { day: "Mon", activity: "Run 40 min — negative split (second half faster)", type: "cardio" },
+                { day: "Tue", activity: "Weighted step-ups, single-leg squats, hip hinge complex", type: "strength" },
+                { day: "Wed", activity: "Back-to-back stair sets 45 min with pack (9kg)", type: "cardio" },
+                { day: "Thu", activity: "Trail run or treadmill on incline 30 min", type: "cardio" },
+                { day: "Fri", activity: "Full-body strength 45 min + 15 min mobility", type: "strength" },
+                { day: "Sat", activity: "Hike 4–5h with 10kg pack — ideally a real trail", type: "cardio" },
+                { day: "Sun", activity: "Rest", type: "rest" },
+              ]},
+            ],
+            tip: "Do one overnight hiking trip this month if possible — sleeping at elevation or in a tent builds mental resilience.",
+          },
+          {
+            number: 4, title: "Peak Load", subtitle: "Your hardest month",
+            color: "#f87171", icon: "🔥",
+            goal: "Maximum training volume. Long back-to-back hike days to simulate the ABC itinerary. Build mental toughness.",
+            weeks: [
+              { week: "Weeks 1–2", days: [
+                { day: "Mon", activity: "Run 45 min with 3×8 min tempo", type: "cardio" },
+                { day: "Tue", activity: "Heavy leg day: squats, RDLs, step-ups, calf raises", type: "strength" },
+                { day: "Wed", activity: "Hike 2h with 10kg pack — steep route", type: "cardio" },
+                { day: "Thu", activity: "Run 35 min easy recovery", type: "cardio" },
+                { day: "Fri", activity: "Core & stability circuit + mobility 45 min", type: "strength" },
+                { day: "Sat", activity: "Hike Day 1: 5h with 10kg — hilly terrain", type: "cardio" },
+                { day: "Sun", activity: "Hike Day 2: 3h (same pack weight — tired legs!)", type: "cardio" },
+              ]},
+              { week: "Weeks 3–4", days: [
+                { day: "Mon", activity: "Run 50 min steady", type: "cardio" },
+                { day: "Tue", activity: "Strength: unilateral focus, heavy lunges, good mornings", type: "strength" },
+                { day: "Wed", activity: "Stairs + hill walk 60 min with 10kg", type: "cardio" },
+                { day: "Thu", activity: "Easy run 30 min + ankle & knee mobility", type: "cardio" },
+                { day: "Fri", activity: "Light strength + stretching", type: "strength" },
+                { day: "Sat", activity: "Back-to-back hike Day 1: 6h — highest effort of plan", type: "cardio" },
+                { day: "Sun", activity: "Back-to-back hike Day 2: 3–4h (trust the tiredness)", type: "cardio" },
+              ]},
+            ],
+            tip: "Nail your nutrition this month. Practice eating on the trail — real food, not just water. Hydrate obsessively.",
+          },
+          {
+            number: 5, title: "Taper", subtitle: "Let the gains land",
+            color: "#a78bfa", icon: "🏔️",
+            goal: "Reduce volume, keep intensity. Arrive at the trailhead rested, confident, and injury-free. You've done the work.",
+            weeks: [
+              { week: "Weeks 1–2", days: [
+                { day: "Mon", activity: "Run 35 min easy", type: "cardio" },
+                { day: "Tue", activity: "Light leg strength — same moves, 60% weight", type: "strength" },
+                { day: "Wed", activity: "Walk 60 min with 8kg — no pressure", type: "cardio" },
+                { day: "Thu", activity: "Run 30 min + 10 min mobility", type: "cardio" },
+                { day: "Fri", activity: "Core & stretch session 30 min", type: "strength" },
+                { day: "Sat", activity: "Hike 3h with 8kg — enjoyment focus", type: "cardio" },
+                { day: "Sun", activity: "Rest", type: "rest" },
+              ]},
+              { week: "Weeks 3–4 (Final Prep)", days: [
+                { day: "Mon", activity: "Easy run 25 min", type: "cardio" },
+                { day: "Tue", activity: "Bodyweight mobility & activation only", type: "strength" },
+                { day: "Wed", activity: "Walk 45 min — no pack", type: "cardio" },
+                { day: "Thu", activity: "Run 20 min very easy", type: "cardio" },
+                { day: "Fri", activity: "Light stretch + gear check day", type: "rest" },
+                { day: "Sat", activity: "Short hike 1.5h — celebrate your journey!", type: "cardio" },
+                { day: "Sun", activity: "Full rest. You're ready. 🏔️", type: "rest" },
+              ]},
+            ],
+            tip: "Don't try anything new in this last month. No new shoes, no new foods, no heroic last workouts. Trust your training.",
+          },
+        ];
+
+        const typeColors = {
+          cardio:   { bg: "rgba(96,165,250,0.15)",  border: "#60a5fa", text: "#93c5fd" },
+          strength: { bg: "rgba(251,146,60,0.15)",  border: "#fb923c", text: "#fdba74" },
+          rest:     { bg: "rgba(167,139,250,0.15)", border: "#a78bfa", text: "#c4b5fd" },
+        };
+
+        const abcFacts = [
+          { icon: "📍", label: "Destination", value: "Annapurna Base Camp, Nepal" },
+          { icon: "📏", label: "Trek Distance", value: "~110 km round trip" },
+          { icon: "🏔️", label: "Max Elevation", value: "4,130m (13,549 ft)" },
+          { icon: "📅", label: "Trek Duration", value: "7–12 days" },
+          { icon: "🌡️", label: "Elevation Gain", value: "~3,000m from Nayapul" },
+          { icon: "💪", label: "Difficulty", value: "Moderate–Challenging" },
+        ];
+
+        const TW = [
+          { label:"M1 · Wk 1–2", runMin:25, runDist:"2 km", stairs:5,  hikeH:1,   packKg:0,  squats:12, hrTarget:90, tip:"Just walk/run intervals. Record how long you can move without stopping — that's your Week 1 baseline." },
+          { label:"M1 · Wk 3–4", runMin:23, runDist:"2 km", stairs:7,  hikeH:1.25,packKg:5,  squats:15, hrTarget:88, tip:"First pack hike! Even 5 kg feels different. Notice how your breathing and posture change." },
+          { label:"M2 · Wk 1–2", runMin:20, runDist:"3 km", stairs:10, hikeH:2,   packKg:7,  squats:18, hrTarget:85, tip:"First 3 km continuous run. Time yourself — this number will improve every two weeks." },
+          { label:"M2 · Wk 3–4", runMin:18, runDist:"3 km", stairs:12, hikeH:2.5, packKg:8,  squats:20, hrTarget:83, tip:"Track stair floors. Stair capacity directly simulates trail switchbacks at ABC." },
+          { label:"M3 · Wk 1–2", runMin:16, runDist:"4 km", stairs:15, hikeH:3,   packKg:9,  squats:22, hrTarget:80, tip:"Time your hike pace. ABC averages 3–4 km/h. Measure speed on a known route." },
+          { label:"M3 · Wk 3–4", runMin:15, runDist:"4 km", stairs:18, hikeH:4,   packKg:10, squats:25, hrTarget:75, tip:"Do a 4 h hike. If you finish feeling good but tired — you're exactly on track." },
+          { label:"M4 · Wk 1–2", runMin:14, runDist:"5 km", stairs:20, hikeH:5,   packKg:10, squats:28, hrTarget:72, tip:"Back-to-back weekend hikes. Day 2 tired legs are the real ABC simulator." },
+          { label:"M4 · Wk 3–4", runMin:13, runDist:"5 km", stairs:22, hikeH:6,   packKg:10, squats:30, hrTarget:68, tip:"Peak week. Finish the 6 h hike and you are ready for Annapurna Base Camp." },
+          { label:"M5 · Wk 1–2", runMin:15, runDist:"4 km", stairs:15, hikeH:3,   packKg:8,  squats:25, hrTarget:65, tip:"Taper: volume drops but intensity stays. Your body consolidates all gains now." },
+          { label:"M5 · Wk 3–4", runMin:18, runDist:"3 km", stairs:10, hikeH:1.5, packKg:6,  squats:20, hrTarget:62, tip:"Final week. Light movement only. Sleep, eat well, pack your bag. You've earned this." },
+        ];
+
+        const TF = [
+          { key:"run",    label:"Run time",       unit:"min",  placeholder:"e.g. 22", step:1,   min:0,  max:180 },
+          { key:"stairs", label:"Stair floors",   unit:"fl",   placeholder:"e.g. 10", step:1,   min:0,  max:200 },
+          { key:"hike",   label:"Longest hike",   unit:"h",    placeholder:"e.g. 2",  step:0.5, min:0,  max:12  },
+          { key:"pack",   label:"Pack weight",    unit:"kg",   placeholder:"e.g. 7",  step:0.5, min:0,  max:15  },
+          { key:"squats", label:"Squats (1 set)", unit:"reps", placeholder:"e.g. 15", step:1,   min:0,  max:100 },
+          { key:"hr",     label:"Resting HR",     unit:"bpm",  placeholder:"e.g. 70", step:1,   min:30, max:120 },
+        ];
+
+        const TC = ["#378ADD","#1D9E75","#BA7517","#D4537E","#7F77DD"];
+
+        function passCheck(key, val, w) {
+          if (val === null || val === undefined || val === "") return null;
+          const v = parseFloat(val);
+          if (key === "run")    return v <= w.runMin;
+          if (key === "stairs") return v >= w.stairs;
+          if (key === "hike")   return v >= w.hikeH;
+          if (key === "pack")   return v >= w.packKg;
+          if (key === "squats") return v >= w.squats;
+          if (key === "hr")     return v <= w.hrTarget;
+          return null;
+        }
+
+        function StatusBadge({ pass }) {
+          if (pass === null) return <span style={{ fontSize:11, padding:"2px 8px", borderRadius:99, background:"rgba(128,128,128,0.12)", color:"#888", fontFamily:"'DM Sans',sans-serif" }}>—</span>;
+          return <span style={{ fontSize:11, padding:"2px 8px", borderRadius:99, fontWeight:500, fontFamily:"'DM Sans',sans-serif", background: pass ? "rgba(29,158,117,0.15)" : "rgba(226,75,74,0.15)", color: pass ? "#1D9E75" : "#E24B4A" }}>{pass ? "Pass" : "Miss"}</span>;
+        }
+
+        function TrackerModal({ person, accentColor, onClose }) {
+          const storageKey = `abc_logs_${person.toLowerCase()}`;
+          const [tab, setTab] = useState("targets");
+          const [weekIdx, setWeekIdx] = useState(0);
+          const [logWeekIdx, setLogWeekIdx] = useState(0);
+          const [logs, setLogs] = useState(() => {
+            try { return JSON.parse(localStorage.getItem(storageKey) || "{}"); } catch { return {}; }
+          });
+          const [inputs, setInputs] = useState({});
+          const [saved, setSaved] = useState(false);
+          const canvasRef = useRef(null);
+          const chartRef = useRef(null);
+
+          const w = TW[weekIdx];
+
+          const TESTS = [
+            { name:"3-minute step test",    desc:"Step up/down a 30 cm surface for 3 min, then count heartbeats for 1 min after. Lower is better.", target:`HR < ${w.hrTarget} bpm`, color:TC[0], pct:Math.min(100,30+weekIdx*8)  },
+            { name:`Run ${w.runDist} for time`, desc:"Run at comfortable effort — no walking. Record your finish time.",             target:`≤ ${w.runMin} min`,         color:TC[1], pct:Math.min(100,30+weekIdx*9)  },
+            { name:"Loaded stair climb",    desc:`Climb ${w.stairs} floors non-stop with a ${Math.max(0,w.packKg-2)} kg pack.`,    target:`${w.stairs} floors`,         color:TC[2], pct:Math.min(100,25+weekIdx*9)  },
+            { name:"Squat endurance",       desc:`${w.squats} bodyweight squats in a row with full range of motion.`,              target:`${w.squats} reps`,            color:TC[3], pct:Math.min(100,40+weekIdx*7)  },
+            { name:"Hike pace check",       desc:"Track km/h on your long hike using any phone fitness app.",                      target:"≥ 3 km/h avg",                color:TC[4], pct:Math.min(100,20+weekIdx*10) },
+          ];
+
+          function saveLog() {
+            const updated = { ...logs, [logWeekIdx]: { ...inputs } };
+            setLogs(updated);
+            try { localStorage.setItem(storageKey, JSON.stringify(updated)); } catch {}
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2000);
+          }
+
+          useEffect(() => {
+            if (tab !== "progress") return;
+            const canvas = canvasRef.current;
+            if (!canvas || !window.Chart) return;
+            if (chartRef.current) { chartRef.current.destroy(); chartRef.current = null; }
+            const build = key => TW.map((_, i) => { const v = logs[i]?.[key]; return (v !== undefined && v !== "") ? parseFloat(v) : null; });
+            chartRef.current = new window.Chart(canvas, {
+              type:"line",
+              data:{ labels: TW.map(wk=>wk.label),
+                datasets:[
+                  { label:"Run (min)",   data:build("run"),    borderColor:TC[0], backgroundColor:"transparent", tension:0.3, spanGaps:true },
+                  { label:"Hike (h)",    data:build("hike"),   borderColor:TC[1], backgroundColor:"transparent", tension:0.3, spanGaps:true, borderDash:[5,3] },
+                  { label:"Squats",      data:build("squats"), borderColor:TC[2], backgroundColor:"transparent", tension:0.3, spanGaps:true, borderDash:[2,2] },
+                  { label:"Resting HR",  data:build("hr"),     borderColor:TC[3], backgroundColor:"transparent", tension:0.3, spanGaps:true, borderDash:[8,3] },
+                ],
+              },
+              options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } },
+                scales:{
+                  x:{ ticks:{ font:{size:10}, color:"#888", maxRotation:35 }, grid:{ color:"rgba(128,128,128,0.1)" } },
+                  y:{ ticks:{ font:{size:11}, color:"#888" }, grid:{ color:"rgba(128,128,128,0.1)" } },
+                },
+              },
+            });
+          }, [tab, logs]);
+
+          const tabBtn = (id, label) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              style={{
+                padding:"8px 16px", cursor:"pointer", fontSize:13, fontWeight:500,
+                fontFamily:"'DM Sans',sans-serif",
+                borderRadius:"8px 8px 0 0",
+                border: tab===id ? `1px solid ${accentColor}50` : "1px solid transparent",
+                borderBottom: tab===id ? "1px solid #0d1117" : "1px solid transparent",
+                background: tab===id ? "#0d1117" : "transparent",
+                color: tab===id ? accentColor : "#475569",
+                marginBottom: -1,
+              }}
+            >{label}</button>
+          );
+
+          const sel = (val, onChange) => (
+            <select
+              value={val} onChange={e => onChange(+e.target.value)}
+              style={{ padding:"6px 12px", border:"1px solid #1e293b", borderRadius:8, background:"#0f1117", color:"#e2e8f0", fontSize:13, fontFamily:"'DM Sans',sans-serif" }}
+            >
+              {TW.map((wk,i) => <option key={i} value={i}>{wk.label}</option>)}
+            </select>
+          );
+
+          return (
+            <div
+              onClick={e => e.target === e.currentTarget && onClose()}
+              style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.80)", zIndex:1000, display:"flex", alignItems:"flex-start", justifyContent:"center", padding:"32px 16px", overflowY:"auto" }}
+            >
+              <div style={{ width:"100%", maxWidth:720, background:"#0d1117", border:`1px solid ${accentColor}40`, borderRadius:20, overflow:"hidden" }}>
+
+                {/* Header */}
+                <div style={{ padding:"24px 28px 20px", background:`linear-gradient(135deg,${accentColor}18,transparent)`, borderBottom:"1px solid #1e293b", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                  <div>
+                    <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, letterSpacing:3, color:accentColor, textTransform:"uppercase", marginBottom:4 }}>Progress Tracker</p>
+                    <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:22, color:"#e2e8f0", fontWeight:700, margin:0 }}>{person}'s Journey 🏔️</h2>
+                  </div>
+                  <button onClick={onClose} style={{ background:"rgba(255,255,255,0.05)", border:"1px solid #1e293b", borderRadius:8, padding:"8px 14px", color:"#94a3b8", cursor:"pointer", fontSize:13, fontFamily:"'DM Sans',sans-serif" }}>✕ Close</button>
+                </div>
+
+                {/* Tabs */}
+                <div style={{ display:"flex", gap:4, padding:"0 20px", background:"#0a0a0f", borderBottom:"1px solid #1e293b" }}>
+                  {tabBtn("targets","Weekly targets")}
+                  {tabBtn("log","Log results")}
+                  {tabBtn("progress","My progress")}
+                </div>
+
+                <div style={{ padding:"20px 24px 28px" }}>
+
+                  {/* TARGETS */}
+                  {tab === "targets" && <>
+                    <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16, flexWrap:"wrap" }}>
+                      <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:"#64748b" }}>Targets for</span>
+                      {sel(weekIdx, setWeekIdx)}
+                    </div>
+
+                    <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(115px,1fr))", gap:10, marginBottom:20 }}>
+                      {[
+                        ["Run time",    `${w.runMin} min`, w.runDist],
+                        ["Stairs",      w.stairs,          "floors/session"],
+                        ["Hike",        `${w.hikeH} h`,    "minimum"],
+                        ["Pack weight", `${w.packKg} kg`,  "on hike day"],
+                        ["Squats",      w.squats,           "1 set"],
+                        ["Resting HR",  "<65",             "bpm, morning"],
+                      ].map(([lbl,val,unit],i) => (
+                        <div key={i} style={{ background:"#0f1117", border:"1px solid #1e293b", borderRadius:10, padding:"12px 14px" }}>
+                          <div style={{ fontSize:11, color:"#475569", textTransform:"uppercase", letterSpacing:"0.06em", marginBottom:4, fontFamily:"'DM Sans',sans-serif" }}>{lbl}</div>
+                          <div style={{ fontSize:20, fontWeight:600, color:"#e2e8f0", lineHeight:1.1, fontFamily:"'DM Sans',sans-serif" }}>{val}</div>
+                          <div style={{ fontSize:11, color:"#64748b", marginTop:3, fontFamily:"'DM Sans',sans-serif" }}>{unit}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ fontSize:11, letterSpacing:"0.08em", textTransform:"uppercase", color:"#475569", marginBottom:10, fontFamily:"'DM Sans',sans-serif" }}>Weekly fitness tests</div>
+                    {TESTS.map((t,i) => (
+                      <div key={i} style={{ background:"#0f1117", border:"1px solid #1e293b", borderRadius:12, padding:"14px 16px", marginBottom:10 }}>
+                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:12 }}>
+                          <div>
+                            <div style={{ fontSize:14, fontWeight:600, color:"#e2e8f0", fontFamily:"'DM Sans',sans-serif" }}>{t.name}</div>
+                            <div style={{ fontSize:12, color:"#64748b", marginTop:3, lineHeight:1.5, fontFamily:"'DM Sans',sans-serif" }}>{t.desc}</div>
+                          </div>
+                          <span style={{ fontSize:12, color:t.color, fontWeight:600, whiteSpace:"nowrap", fontFamily:"'DM Sans',sans-serif" }}>{t.target}</span>
+                        </div>
+                        <div style={{ height:4, background:"rgba(128,128,128,0.12)", borderRadius:2, overflow:"hidden", marginTop:10 }}>
+                          <div style={{ height:"100%", width:`${t.pct}%`, background:t.color, borderRadius:2 }} />
+                        </div>
+                        <div style={{ fontSize:11, color:"#374151", marginTop:4, fontFamily:"'DM Sans',sans-serif" }}>Expected readiness: {t.pct}%</div>
+                      </div>
+                    ))}
+
+                    <div style={{ borderLeft:"2px solid #f59e0b", background:"rgba(245,158,11,0.06)", borderRadius:"0 8px 8px 0", padding:"12px 16px", marginTop:16, fontSize:13, color:"#94a3b8", lineHeight:1.7, fontFamily:"'DM Sans',sans-serif" }}>
+                      💡 {w.tip}
+                    </div>
+                  </>}
+
+                  {/* LOG */}
+                  {tab === "log" && <>
+                    <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16, flexWrap:"wrap" }}>
+                      <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:"#64748b" }}>Logging for</span>
+                      {sel(logWeekIdx, v => { setLogWeekIdx(v); setInputs(logs[v] || {}); })}
+                    </div>
+
+                    {TF.map(f => (
+                      <div key={f.key} style={{ background:"#0f1117", border:"1px solid #1e293b", borderRadius:12, padding:"12px 16px", marginBottom:10, display:"flex", alignItems:"center", gap:12 }}>
+                        <span style={{ color:"#64748b", fontSize:13, minWidth:130, fontFamily:"'DM Sans',sans-serif" }}>{f.label}</span>
+                        <input
+                          type="number" min={f.min} max={f.max} step={f.step} placeholder={f.placeholder}
+                          value={inputs[f.key] ?? ""}
+                          onChange={e => setInputs({ ...inputs, [f.key]: e.target.value })}
+                          style={{ width:90, padding:"6px 10px", border:"1px solid #1e293b", borderRadius:8, background:"#0a0a0f", color:"#e2e8f0", fontSize:14 }}
+                        />
+                        <span style={{ fontSize:12, color:"#475569", fontFamily:"'DM Sans',sans-serif" }}>{f.unit}</span>
+                        <span style={{ marginLeft:"auto" }}><StatusBadge pass={passCheck(f.key, inputs[f.key], TW[logWeekIdx])} /></span>
+                      </div>
+                    ))}
+
+                    <div style={{ marginTop:16, display:"flex", alignItems:"center", gap:12 }}>
+                      <button onClick={saveLog} style={{ padding:"10px 22px", border:"1px solid #334155", borderRadius:8, background:"#1e293b", color:"#e2e8f0", cursor:"pointer", fontSize:13, fontWeight:500, fontFamily:"'DM Sans',sans-serif" }}>
+                        Save results
+                      </button>
+                      {saved && <span style={{ fontSize:12, color:"#1D9E75", fontFamily:"'DM Sans',sans-serif" }}>✓ Saved!</span>}
+                    </div>
+                  </>}
+
+                  {/* PROGRESS */}
+                  {tab === "progress" && <>
+                    <div style={{ position:"relative", width:"100%", height:210, marginBottom:12 }}>
+                      <canvas ref={canvasRef} role="img" aria-label={`${person}'s fitness metrics over time`} />
+                    </div>
+                    <div style={{ display:"flex", flexWrap:"wrap", gap:14, marginBottom:20, fontSize:12, color:"#64748b", fontFamily:"'DM Sans',sans-serif" }}>
+                      {["Run (min)","Hike (h)","Squats","Resting HR"].map((lbl,i) => (
+                        <span key={i} style={{ display:"flex", alignItems:"center", gap:5 }}>
+                          <span style={{ width:18, height:3, background:TC[i], borderRadius:2, display:"inline-block" }} />
+                          {lbl}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div style={{ fontSize:11, letterSpacing:"0.08em", textTransform:"uppercase", color:"#475569", marginBottom:10, fontFamily:"'DM Sans',sans-serif" }}>History</div>
+                    {Object.keys(logs).length === 0
+                      ? <div style={{ textAlign:"center", padding:"2rem", color:"#374151", fontSize:13, fontFamily:"'DM Sans',sans-serif" }}>No logs yet — use "Log results" to start tracking.</div>
+                      : <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13 }}>
+                          <thead><tr>
+                            {["Period","Run","Hike","Squats","Resting HR"].map(h => (
+                              <th key={h} style={{ textAlign:"left", padding:"8px 10px", borderBottom:"1px solid #1e293b", color:"#475569", fontWeight:400, fontSize:11, textTransform:"uppercase", letterSpacing:"0.05em", fontFamily:"'DM Sans',sans-serif" }}>{h}</th>
+                            ))}
+                          </tr></thead>
+                          <tbody>
+                            {TW.map((wk,i) => {
+                              const l = logs[i]; if (!l) return null;
+                              return <tr key={i}>
+                                <td style={{ padding:"10px", borderBottom:"1px solid #111827", color:"#94a3b8", fontFamily:"'DM Sans',sans-serif" }}>{wk.label}</td>
+                                <td style={{ padding:"10px", borderBottom:"1px solid #111827" }}><StatusBadge pass={passCheck("run",    l.run,    wk)} /></td>
+                                <td style={{ padding:"10px", borderBottom:"1px solid #111827" }}><StatusBadge pass={passCheck("hike",   l.hike,   wk)} /></td>
+                                <td style={{ padding:"10px", borderBottom:"1px solid #111827" }}><StatusBadge pass={passCheck("squats", l.squats, wk)} /></td>
+                                <td style={{ padding:"10px", borderBottom:"1px solid #111827" }}><StatusBadge pass={passCheck("hr",     l.hr,     wk)} /></td>
+                              </tr>;
+                            })}
+                          </tbody>
+                        </table>
+                    }
+                  </>}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        function WorkoutPlan() {
+          const [activeMonth, setActiveMonth] = useState(0);
+          const [activeWeek,  setActiveWeek]  = useState(0);
+          const [openTracker, setOpenTracker] = useState(null);
+
+          const month = months[activeMonth];
+          const week  = month.weeks[activeWeek];
+
+          const trackers = [
+            { name:"Jacqueline", color:"#f472b6", emoji:"🌸" },
+            { name:"Joon",       color:"#38bdf8", emoji:"⚡" },
+          ];
+
+          return (
+            <div style={{ minHeight:"100vh", background:"#0a0a0f", color:"#e2e8f0", fontFamily:"'Georgia',serif", overflowX:"hidden" }}>
+              <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap');
+                * { box-sizing:border-box; margin:0; padding:0; }
+                ::-webkit-scrollbar { width:4px; }
+                ::-webkit-scrollbar-track { background:#0a0a0f; }
+                ::-webkit-scrollbar-thumb { background:#333; border-radius:2px; }
+                .month-btn  { cursor:pointer; transition:all 0.3s ease; }
+                .month-btn:hover { transform:translateY(-2px); }
+                .day-row    { transition:background 0.2s ease; }
+                .day-row:hover { background:rgba(255,255,255,0.04) !important; }
+                .week-tab   { cursor:pointer; transition:all 0.2s ease; }
+                .week-tab:hover { opacity:1 !important; }
+                .tracker-btn { transition:all 0.2s ease; cursor:pointer; }
+                .tracker-btn:hover { transform:translateY(-2px); filter:brightness(1.12); }
+                @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+                .fade-in { animation:fadeIn 0.4s ease forwards; }
+              `}</style>
+
+              {/* Hero */}
+              <div style={{ background:"linear-gradient(135deg,#0f172a 0%,#0a0a0f 50%,#120820 100%)", padding:"60px 24px 40px", textAlign:"center", borderBottom:"1px solid #1e293b", position:"relative", overflow:"hidden" }}>
+                <div style={{ position:"absolute", inset:0, background:"radial-gradient(ellipse 80% 50% at 50% 0%,rgba(100,60,200,0.12),transparent)", pointerEvents:"none" }} />
+                <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:12, letterSpacing:4, color:"#64748b", textTransform:"uppercase", marginBottom:16 }}>5-Month Training Program</p>
+                <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(28px,6vw,56px)", fontWeight:900, lineHeight:1.1, background:"linear-gradient(135deg,#e2e8f0 30%,#a78bfa)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", marginBottom:12 }}>
+                  Annapurna<br />Base Camp
+                </h1>
+                <p style={{ fontFamily:"'DM Sans',sans-serif", color:"#94a3b8", fontSize:16, maxWidth:460, margin:"0 auto 28px", lineHeight:1.6 }}>
+                  From zero hiking experience to Nepal's iconic 4,130m sanctuary — in 20 weeks.
+                </p>
+
+                {/* Tracker Buttons */}
+                <div style={{ display:"flex", gap:12, justifyContent:"center", marginBottom:32, flexWrap:"wrap" }}>
+                  {trackers.map(t => (
+                    <button
+                      key={t.name}
+                      className="tracker-btn"
+                      onClick={() => setOpenTracker(t.name)}
+                      style={{
+                        padding:"13px 28px", borderRadius:14,
+                        border:`1.5px solid ${t.color}55`,
+                        background:`${t.color}12`,
+                        color: t.color,
+                        fontFamily:"'DM Sans',sans-serif",
+                        fontSize:14, fontWeight:600,
+                        display:"flex", alignItems:"center", gap:8,
+                      }}
+                    >
+                      <span style={{ fontSize:16 }}>{t.emoji}</span>
+                      {t.name}'s Tracker
+                    </button>
+                  ))}
+                </div>
+
+                {/* ABC Facts */}
+                <div style={{ display:"flex", flexWrap:"wrap", gap:10, justifyContent:"center", maxWidth:700, margin:"0 auto" }}>
+                  {abcFacts.map((f,i) => (
+                    <div key={i} style={{ background:"rgba(255,255,255,0.04)", border:"1px solid #1e293b", borderRadius:10, padding:"8px 16px", fontFamily:"'DM Sans',sans-serif", fontSize:13 }}>
+                      <span style={{ marginRight:6 }}>{f.icon}</span>
+                      <span style={{ color:"#64748b" }}>{f.label}: </span>
+                      <span style={{ color:"#e2e8f0", fontWeight:500 }}>{f.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Month Selector */}
+              <div style={{ display:"flex", gap:10, padding:"24px 20px 0", overflowX:"auto", maxWidth:900, margin:"0 auto", scrollbarWidth:"none" }}>
+                {months.map((m,i) => (
+                  <button
+                    key={i}
+                    className="month-btn"
+                    onClick={() => { setActiveMonth(i); setActiveWeek(0); }}
+                    style={{
+                      flex:"0 0 auto", padding:"12px 20px", borderRadius:12,
+                      border:`1.5px solid ${activeMonth===i ? m.color : "#1e293b"}`,
+                      background: activeMonth===i ? `${m.color}18` : "transparent",
+                      color: activeMonth===i ? m.color : "#64748b",
+                      fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:500, whiteSpace:"nowrap",
+                    }}
+                  >
+                    <span style={{ marginRight:6 }}>{m.icon}</span>Month {m.number}: {m.title}
+                  </button>
+                ))}
+              </div>
+
+              {/* Month Content */}
+              <div className="fade-in" key={activeMonth} style={{ maxWidth:900, margin:"0 auto", padding:"20px 20px 60px" }}>
+                <div style={{ background:`linear-gradient(135deg,${month.color}12,${month.color}06)`, border:`1px solid ${month.color}40`, borderRadius:16, padding:"24px 28px", marginBottom:20 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
+                    <span style={{ fontSize:32 }}>{month.icon}</span>
+                    <div>
+                      <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:26, color:month.color, fontWeight:700 }}>Month {month.number}: {month.title}</h2>
+                      <p style={{ fontFamily:"'DM Sans',sans-serif", color:"#64748b", fontSize:13, letterSpacing:2, textTransform:"uppercase" }}>{month.subtitle}</p>
+                    </div>
+                  </div>
+                  <p style={{ fontFamily:"'DM Sans',sans-serif", color:"#94a3b8", fontSize:15, lineHeight:1.7 }}>{month.goal}</p>
+                </div>
+
+                {/* Week Tabs */}
+                <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+                  {month.weeks.map((w,i) => (
+                    <button
+                      key={i}
+                      className="week-tab"
+                      onClick={() => setActiveWeek(i)}
+                      style={{
+                        padding:"8px 18px", borderRadius:8,
+                        border:`1px solid ${activeWeek===i ? month.color : "#1e293b"}`,
+                        background: activeWeek===i ? `${month.color}20` : "transparent",
+                        color: activeWeek===i ? month.color : "#475569",
+                        fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:500,
+                        opacity: activeWeek===i ? 1 : 0.7,
+                      }}
+                    >{w.week}</button>
+                  ))}
+                </div>
+
+                {/* Schedule */}
+                <div style={{ background:"#0f1117", border:"1px solid #1e293b", borderRadius:16, overflow:"hidden", marginBottom:20 }}>
+                  <div style={{ display:"grid", gridTemplateColumns:"70px 1fr 90px", padding:"12px 20px", background:"#0a0a0f", borderBottom:"1px solid #1e293b", fontFamily:"'DM Sans',sans-serif", fontSize:11, letterSpacing:3, textTransform:"uppercase", color:"#475569" }}>
+                    <span>Day</span><span>Activity</span><span style={{ textAlign:"right" }}>Type</span>
+                  </div>
+                  {week.days.map((d,i) => {
+                    const tc = typeColors[d.type];
+                    return (
+                      <div key={i} className="day-row" style={{ display:"grid", gridTemplateColumns:"70px 1fr 90px", padding:"14px 20px", borderBottom: i < week.days.length-1 ? "1px solid #161b27" : "none", alignItems:"center", gap:12 }}>
+                        <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:600, color: d.type==="rest" ? "#475569" : month.color }}>{d.day}</span>
+                        <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color: d.type==="rest" ? "#4b5563" : "#cbd5e1", lineHeight:1.4 }}>{d.activity}</span>
+                        <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, fontWeight:500, textAlign:"right", padding:"3px 8px", borderRadius:6, background:tc.bg, border:`1px solid ${tc.border}40`, color:tc.text, textTransform:"capitalize", justifySelf:"end" }}>{d.type}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Tip */}
+                <div style={{ display:"flex", gap:14, alignItems:"flex-start", background:"rgba(251,191,36,0.06)", border:"1px solid rgba(251,191,36,0.25)", borderRadius:12, padding:"16px 20px" }}>
+                  <span style={{ fontSize:20 }}>💡</span>
+                  <div>
+                    <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:12, letterSpacing:2, textTransform:"uppercase", color:"#f59e0b", marginBottom:4 }}>Monthly Tip</p>
+                    <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color:"#94a3b8", lineHeight:1.6 }}>{month.tip}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Key Tips */}
+              <div style={{ borderTop:"1px solid #1e293b", background:"#0a0a0f", padding:"40px 20px" }}>
+                <div style={{ maxWidth:900, margin:"0 auto" }}>
+                  <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:22, color:"#e2e8f0", marginBottom:24, textAlign:"center" }}>Essential Rules for Success</h3>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(250px,1fr))", gap:16 }}>
+                    {[
+                      { icon:"🥾", title:"Break in boots early",  body:"Wear your trekking boots on every weekend walk from Month 1. Blisters at ABC are a nightmare." },
+                      { icon:"🎒", title:"Train with your pack",   body:"Gradually load your backpack on long days. On the trail you'll carry 8–12kg every day." },
+                      { icon:"💧", title:"Hydrate constantly",     body:"At altitude, dehydration accelerates AMS. Drink 3–4L/day on the trail. Start the habit now." },
+                      { icon:"🧘", title:"Stretch daily",          body:"5 min hip flexors + calves + hamstrings every day prevents the injuries that derail plans." },
+                      { icon:"📈", title:"10% rule",               body:"Never increase weekly mileage or elevation gain by more than 10% per week. Consistency beats heroics." },
+                      { icon:"🩺", title:"Learn AMS signs",        body:"Study altitude mountain sickness symptoms. On the trek: if in doubt, descend. No summit is worth your health." },
+                    ].map((t,i) => (
+                      <div key={i} style={{ background:"#0f1117", border:"1px solid #1e293b", borderRadius:12, padding:"20px" }}>
+                        <div style={{ fontSize:24, marginBottom:8 }}>{t.icon}</div>
+                        <p style={{ fontFamily:"'Playfair Display',serif", fontSize:15, color:"#e2e8f0", marginBottom:6, fontWeight:700 }}>{t.title}</p>
+                        <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:"#64748b", lineHeight:1.6 }}>{t.body}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ textAlign:"center", padding:"20px", fontFamily:"'DM Sans',sans-serif", fontSize:12, color:"#334155", borderTop:"1px solid #111827" }}>
+                Base Camp is earned, not given. One day at a time. 🏔️
+              </div>
+
+              {/* Modal */}
+              {openTracker && (() => {
+                const t = trackers.find(t => t.name === openTracker);
+                return <TrackerModal person={t.name} accentColor={t.color} onClose={() => setOpenTracker(null)} />;
+              })()}
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<WorkoutPlan />);
+    </script>
+</body>
+</html>
